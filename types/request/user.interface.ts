@@ -1,0 +1,3 @@
+interface IUserReadResponse {
+    message: string
+}
