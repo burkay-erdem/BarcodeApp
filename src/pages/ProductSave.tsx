@@ -1,24 +1,42 @@
 
 import { StatusBar } from 'expo-status-bar';
-import { Keyboard, SafeAreaView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, SafeAreaView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import BarcodeApp from '../components/BarcodeReader';
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import Header from '../components/AppBar';
-import { Button, Toast } from '@ant-design/react-native';
-import DropdownComponent from '../components/Dropdown';
-import { useGetUserReadQuery } from '../service/activity.service';
+import { Button, TextInput } from 'react-native-paper';
+import { IProductCreateRequest } from '../../types/response/product.interface';
+import { IconTypes } from '../../icon-list';
+
+
+const initialArg: IProductCreateRequest = {
+  name: '',
+  barcode: '',
+  width: '',
+  length: '',
+  height: ''
+}
+export interface IAction { name: keyof IProductCreateRequest, value: string }
+const reducer = (state: IProductCreateRequest, action: IAction) => {
+  const { name, value } = action
+  return {
+    ...state,
+    [name]: value
+  }
+}
+
 
 export default function ProductSave() {
+  const [state, dispatch] = useReducer(reducer, initialArg)
 
-  const { data } = useGetUserReadQuery({
-    message: 'hello'
-  })
-  console.log('data: ', data);
+  // const { data } = useGetUserReadQuery({
+  //   id: 0
+  // })
   const [isScan, setIsScan] = useState<boolean>(false)
-  const [barcode, setBarcode] = useState<string>('')
-  const [text, onChangeText] = useState('Useless Text');
-  const [number, onChangeNumber] = useState('');
 
+  const handleSubmit = () => {
+    console.log('submit data : ' , state)
+  }
   if (!isScan) {
     return (
       <>
@@ -26,35 +44,45 @@ export default function ProductSave() {
 
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.container}>
-            <Button onPress={() => Toast.info('This is a toast tips')}>
-              Start
-            </Button>
-            <Button onPress={() => setIsScan(true)} >
-              Scan Barcode
-            </Button>
-            <DropdownComponent />
-            <Text>barcode: {barcode}</Text>
-            <SafeAreaView>
+
+            <SafeAreaView style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
               <TextInput
+                label="Name"
                 style={styles.input}
-                onChangeText={onChangeText}
-                value={text}
+                value={state.name}
+                onChangeText={value => dispatch({ name: 'name', value })}
               />
               <TextInput
+                label="Barcode"
                 style={styles.input}
-                onChangeText={onChangeNumber}
-                value={number}
-                placeholder="useless placeholder"
-                keyboardType="numeric"
+                value={state.barcode}
+                onChangeText={value => dispatch({
+                  name: 'barcode',
+                  value
+                })}
+                right={<TextInput.Icon onPress={() => setIsScan(true)} icon={IconTypes['barcode-scan']} />}
               />
               <TextInput
+                label="Width"
                 style={styles.input}
-                value={barcode}
-                readOnly={true}
-                aria-disabled={true}
-                placeholder="Barcode"
-                keyboardType="numeric"
+                value={state.width}
+                onChangeText={value => dispatch({ name: 'width', value })}
               />
+              <TextInput
+                label="Height"
+                style={styles.input}
+                value={state.height}
+                onChangeText={value => dispatch({ name: 'height', value })}
+              />
+              <TextInput
+                label="Length"
+                style={styles.input}
+                value={state.length}
+                onChangeText={value => dispatch({ name: 'length', value })}
+              />
+              <Button mode="contained" style={styles.input} onPress={e => handleSubmit()} >
+                Save
+              </Button>
             </SafeAreaView>
           </View>
         </TouchableWithoutFeedback>
@@ -63,7 +91,7 @@ export default function ProductSave() {
     )
   }
   return (
-    <BarcodeApp setBarcode={setBarcode} setIsScan={setIsScan} />
+    <BarcodeApp dispatch={dispatch} setIsScan={setIsScan} />
   );
 }
 
@@ -77,11 +105,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0
   },
   input: {
-    height: 40,
-    margin: 12,
-
-    borderWidth: 1,
-    padding: 10,
+    width: '90%',
   },
 });
 

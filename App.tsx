@@ -7,6 +7,7 @@ import TabBar from './src/components/NavigationBar';
 import { Provider } from "react-redux";
 import { store } from "./src/providers/redux.provider";
 import { MD3LightTheme as DefaultTheme, Icon, PaperProvider, Provider as PaperUiProvider, adaptNavigationTheme } from 'react-native-paper';
+import UserSave from './src/pages/UserSave';
 
 // const { LightTheme } = adaptNavigationTheme({ reactNavigationLight: DefaultTheme });
 
@@ -53,6 +54,16 @@ const App = () => {
                   title: 'Login',
                   tabBarIcon: ({ color, size }) => {
                     return <Icon source="home" size={size} color={color} />;
+                  },
+                }}
+              />
+              <Tab.Screen
+                name="User Save"
+                component={UserSave}
+                options={{
+                  title: 'User Save',
+                  tabBarIcon: ({ color, size }) => {
+                    return <Icon source="react" size={size} color={color} />;
                   },
                 }}
               />

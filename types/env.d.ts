@@ -1,6 +1,15 @@
 declare module '@env' {
     export const API_URL: string;
-    export const APP_MAJOR_VERSION: string;
-    export const APP_MINOR_VERSION: string;
-    export const APP_PATCH_VERSION: string;
+    export const DATABASE_URL: string;
+}
+
+declare module process.env {
+    export const API_URL: string;
+    export const DB_NAME: string;
+    export const DB_HOST: string;
+    export const DB_USER: string;
+    export const DB_PASSWORD: string;
+    export const DB_DIALECT: string;
+    export const DB_PREFIX: string;
+
 }

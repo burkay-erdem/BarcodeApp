@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { CameraView } from "expo-camera/next";
+import { IAction } from "../pages/ProductSave";
+import { useDispatch } from "react-redux";
 
 interface IBarcode {
-    setBarcode: React.Dispatch<React.SetStateAction<string>>;
+    dispatch: React.Dispatch<IAction>;
     setIsScan: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function BarcodeApp({ setBarcode, setIsScan }: Readonly<IBarcode>) {
+export default function BarcodeApp({ dispatch, setIsScan }: Readonly<IBarcode>) {
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 
     useEffect(() => {
@@ -21,7 +23,10 @@ export default function BarcodeApp({ setBarcode, setIsScan }: Readonly<IBarcode>
     }, []);
 
     const handleBarCodeScanned = ({ type, data }: { type: string, data: string }) => {
-        setBarcode(data);
+        dispatch({
+            name: 'barcode',
+            value: data
+        });
         setIsScan(false);
         Alert.alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     };
