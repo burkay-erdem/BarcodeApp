@@ -44,7 +44,6 @@ export default function ProductSave() {
 
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.container}>
-
             <SafeAreaView style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
               <TextInput
                 label="Name"
@@ -66,18 +65,21 @@ export default function ProductSave() {
                 label="Width"
                 style={styles.input}
                 value={state.width}
+                keyboardType = 'numeric'
                 onChangeText={value => dispatch({ name: 'width', value })}
               />
               <TextInput
                 label="Height"
                 style={styles.input}
                 value={state.height}
+                keyboardType = 'numeric'
                 onChangeText={value => dispatch({ name: 'height', value })}
               />
               <TextInput
                 label="Length"
                 style={styles.input}
                 value={state.length}
+                keyboardType = 'numeric'
                 onChangeText={value => dispatch({ name: 'length', value })}
               />
               <Button mode="contained" style={styles.input} onPress={e => handleSubmit()} >

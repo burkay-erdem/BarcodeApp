@@ -10,11 +10,13 @@ export interface ModelFunction {
     model: (sequelize: Sequelize, PREFIX: string) => {
         model: ISequelizeModel;
         associate: (models: IDb) => void;
+        migrate: () => void;
     }
 }
 
 export interface ISequelizeModelOption extends ModelOptions {
     associate: (models: IDb) => void;
+    migrate: () => void;
 }
 
 export interface ISequelizeModel extends ModelCtor<Model> {

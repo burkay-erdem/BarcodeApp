@@ -1,3 +1,3 @@
-export interface IUserReadResponse {
-    id: number
+export interface IRoleReadListRequest {
+  
 }

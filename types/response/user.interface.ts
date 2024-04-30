@@ -1,10 +1,9 @@
 import { IUser, IUserAttributes } from "../model/user.interface";
+import { IBaseResponse } from "../system";
 
-export interface IUserReadRequest {
-    id: number
+export interface IUserReadResponse extends IBaseResponse<IUserAttributes> {
 }
-export interface IUserReadListRequest {
+export interface IUserReadListResponse extends IBaseResponse {
 }
-
-export interface IUserCreateRequest extends IUser {
+export interface IUserCreateResponse extends IBaseResponse<IUserAttributes> {   
 }

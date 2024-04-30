@@ -1,35 +1,44 @@
 import bcrypt from "bcryptjs";
-import { NextFunction, Request, Response } from "express";
 import asyncHandler from 'express-async-handler'
 import { Model } from "sequelize";
 
 import db from "../model";
 import { IRoleAttributes } from "../../types/model/role.interface";
+import { NextFunction, Request, Response, __Response__ } from "../../types/express";
+import type { IUserCreateRequest } from "../../types/request/user.interface";
+import { IUserCreateResponse } from "../../types/response/user.interface";
+import { IUser, IUserAttributes } from "../../types/model/user.interface";
+import { validationResult } from "express-validator";
+
 
 // const TaskResponseSyncService = require('../services/syncTaskResponsesWithUsers'); // Import the TaskResponseSyncService
 
 
-const signup = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const signup = asyncHandler(async (req: Request<IUserCreateRequest>, res: Response<IUserCreateResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IUserCreateResponse["data"]>()
 
-    const role = await db.Role.findByPk<Model<IRoleAttributes>>(req.body.role);
-    if (!role) {
-        res.status(400).send({ message: "Invalid role" });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        response.errorMessages = errors.array() 
+        res.status(422).json(response);
         return
     }
 
-    const user = await db.User.create({
+    const role = await db.Role.findByPk<Model<IRoleAttributes>>(req.body.role_id);
+    if (!role) {
+        response.errorMessages.push({ type: "role_id", msg: "Invalid role" })
+        res.status(400).send(response);
+        return
+    }
+
+    const user = await db.User.create<Model<IUserAttributes, IUser>>({
         name: req.body.name,
         role_id: req.body.role_id,
         password: bcrypt.hashSync(req.body.password, 8),
     })
 
-    // const department = req.body.department;
-    // console.log('department: ', department);
-    // After saving the user, sync TaskResponses with the new user
-    // await TaskResponseSyncService.syncTaskResponsesWithUsers(department[0]);
-    // console.log('department[0]._id: ', department[0]);
-
-    res.send({ message: "User was registered successfully!" });
+    response.data = user.dataValues
+    res.send(response);
 
 });
 

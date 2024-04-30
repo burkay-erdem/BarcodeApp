@@ -4,7 +4,7 @@ import { IDb, ModelFunction } from '../../types/sequelize'
 import { IUserInstance } from '../../types/model/user.interface'
 const User = (sequelize: Sequelize, PREFIX: string) => {
     const UserModel = sequelize.define<IUserInstance>('User', {
-        user_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
+        user_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
         name: { type: DataTypes.STRING(50), allowNull: false },
         role_id: { type: DataTypes.INTEGER, allowNull: false },
         password: { type: DataTypes.STRING(50), allowNull: false }
@@ -15,7 +15,10 @@ const User = (sequelize: Sequelize, PREFIX: string) => {
     const associate = (models: IDb) => {
 
     }
-    return { model: UserModel, associate }
+    const migrate = () => {
+
+    }
+    return { model: UserModel, associate, migrate }
 }
 export default {
     User,

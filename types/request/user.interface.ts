@@ -1,9 +1,10 @@
-import { IUserAttributes } from "../model/user.interface";
+import { IUser, IUserAttributes } from "../model/user.interface";
 
-export interface IUserReadResponse extends IUserAttributes {
+export interface IUserReadRequest {
+    id: number;
 }
-export interface IUserReadListResponse  {
-    users: IUserAttributes[]
+export interface IUserReadListRequest {
+   
 }
-export interface IUserCreateResponse extends IUserAttributes {
+export interface IUserCreateRequest extends IUser {
 }

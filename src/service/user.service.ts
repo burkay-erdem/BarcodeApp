@@ -1,5 +1,6 @@
-import { IUserReadResponse } from "../../types/request/user.interface";
-import { IUserReadRequest } from "../../types/response/user.interface";
+ 
+import { IUserCreateRequest, IUserReadRequest } from "../../types/request/user.interface";
+import { IUserCreateResponse, IUserReadResponse } from "../../types/response/user.interface";
 import { apiSlice } from "./api.service";
 
 
@@ -22,7 +23,7 @@ export const UserApiServiceSlice = apiSlice.injectEndpoints({
         }),
       },
     ),
-    postUserCreate: builder.mutation<IUserReadResponse, IUserReadRequest>(
+    postUserCreate: builder.mutation<IUserCreateResponse, IUserCreateRequest>(
       {
         query: (data) => ({
           url: UserEndpoints.postUserCreate,
