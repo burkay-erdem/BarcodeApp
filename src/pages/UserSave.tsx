@@ -34,13 +34,11 @@ export default function UserSave() {
   const [createUser] = usePostUserCreateMutation();
   const handleSubmit = async () => {
     try {
-
       const createUserResponse = createUser({ ...state })
       Alert.alert('Kullanıcı işlemleri', 'yeni kullanıcı oluşturuldu')
       console.log('createUserResponse: ', createUserResponse);
     } catch (error) {
       console.log('error : ', error)
-      
     } 
   }
   return (

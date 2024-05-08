@@ -13,5 +13,10 @@ export interface IMessage  {
 export interface IBaseResponse<T = {}> {
     errorMessages: IMessage[];
     warningMessages: IMessage[];
-    data: T | null
+    data: T | null;
+}
+
+export interface IReadList {
+    page?: number;
+    limit?: number;
 }

@@ -13,7 +13,7 @@ const Role = (sequelize: Sequelize, PREFIX: string) => {
     const associate = (models: IDb) => {
 
     }
-    const migrate = () => {
+    const seed = () => {
         RoleModel.bulkCreate([
             {
                 name: 'Muhasebe'
@@ -26,7 +26,7 @@ const Role = (sequelize: Sequelize, PREFIX: string) => {
             },
         ])
     }
-    return { model: RoleModel, associate, migrate }
+    return { model: RoleModel, associate, seed }
 }
 export default {
     Role,

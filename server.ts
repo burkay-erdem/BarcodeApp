@@ -11,7 +11,7 @@ import appRouter from './server/route/router'
 
  
 const app = express()
-const port = 3001
+const port = 3000
 
 
 

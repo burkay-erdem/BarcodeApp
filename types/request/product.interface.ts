@@ -1,8 +1,11 @@
-import { IProductAttributes } from "../model/product.interface";
+import { IProduct, IProductIdentity } from "../model/product.interface";
+import { IReadList } from "../system";
 
-export interface IProductReadResponse extends IBaseResponse<IProductAttributes> {
+export interface IProductReadRequest extends IProductIdentity {
 }
-export interface IProductReadListResponse extends IBaseResponse<IProductAttributes[]> {
+
+export interface IProductReadListRequest extends IReadList {
 }
-export interface IProductCreateResponse extends IBaseResponse<IProductAttributes> {
+
+export interface IProductCreateRequest extends IProduct {
 }

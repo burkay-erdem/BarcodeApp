@@ -5,8 +5,12 @@ export interface IUser {
     role_id: number;
     password: string;
 }
-export interface IUserAttributes extends IUser {
+
+export interface IUserIdentity {
     user_id: number;
+}
+
+export interface IUserAttributes extends IUserIdentity, IUser {
 }
 
 export interface IUserCreationAttributes extends Optional<IUserAttributes, 'user_id'> { }

@@ -15,10 +15,10 @@ const User = (sequelize: Sequelize, PREFIX: string) => {
     const associate = (models: IDb) => {
 
     }
-    const migrate = () => {
+    const seed = () => {
 
     }
-    return { model: UserModel, associate, migrate }
+    return { model: UserModel, associate, seed }
 }
 export default {
     User,

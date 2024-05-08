@@ -1,10 +1,11 @@
-import { IProduct, IProductAttributes } from "../model/product.interface";
+import { IProduct } from "../model/product.interface";
+import { IBaseResponse } from "../system";
 
-export interface IProductReadRequest {
+export interface IProductReadResponse {
     id: number
 }
-export interface IProductReadListRequest {
+export interface IProductReadListResponse {
 }
 
-export interface IProductCreateRequest extends IProduct {
+export interface IProductCreateResponse extends IBaseResponse<IProduct> {
 }

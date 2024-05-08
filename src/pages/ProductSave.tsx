@@ -5,16 +5,18 @@ import BarcodeApp from '../components/BarcodeReader';
 import { useReducer, useState } from 'react';
 import Header from '../components/AppBar';
 import { Button, TextInput } from 'react-native-paper';
-import { IProductCreateRequest } from '../../types/response/product.interface';
 import { IconTypes } from '../../icon-list';
+import ImagePicker from '../components/imagePicker/ImagePicker';
+import { IProductCreateRequest } from '../../types/request/product.interface';
+import { usePostProductCreateMutation } from '../service/product.service';
+import { IMessage } from '../../types/system';
 
 
 const initialArg: IProductCreateRequest = {
   name: '',
   barcode: '',
   width: '',
-  length: '',
-  height: ''
+  length: '', 
 }
 export interface IAction { name: keyof IProductCreateRequest, value: string }
 const reducer = (state: IProductCreateRequest, action: IAction) => {
@@ -28,14 +30,47 @@ const reducer = (state: IProductCreateRequest, action: IAction) => {
 
 export default function ProductSave() {
   const [state, dispatch] = useReducer(reducer, initialArg)
+  const [images, setImages] = useState([
+    {
+      key: 'img-1',
+      uri: ''
+    },
+    {
+      key: 'img-2',
+      uri: ''
+    },
+    {
+      key: 'img-3',
+      uri: ''
+    },
+  ])
+  const handleSetUrl = (uri: string, key: string) => {
+    setImages(prev => prev.map(x => {
+      if (x.key === key) {
+        x.uri = uri
+      }
+      return x
+    }))
+  }
 
-  // const { data } = useGetUserReadQuery({
-  //   id: 0
-  // })
   const [isScan, setIsScan] = useState<boolean>(false)
 
-  const handleSubmit = () => {
-    console.log('submit data : ' , state)
+  const [createProduct] = usePostProductCreateMutation()
+  const handleSubmit = async () => {
+    try {
+      const createProductResponse = await createProduct(state).unwrap()
+      console.log('createProductResponse: ', createProductResponse)
+    } catch (error: any) {
+      if (error.data.errorMessages.length) {
+        const errorMessages = error.data.errorMessages as IMessage[]
+        console.error(errorMessages)
+      }
+      if (error.data.warningMessages.length) {
+        const warningMessages = error.data.warningMessages as IMessage[]
+        console.warn(warningMessages)
+      } 
+    }
+
   }
   if (!isScan) {
     return (
@@ -65,21 +100,34 @@ export default function ProductSave() {
                 label="Width"
                 style={styles.input}
                 value={state.width}
-                keyboardType = 'numeric'
+                keyboardType='numeric'
                 onChangeText={value => dispatch({ name: 'width', value })}
               />
-              <TextInput
-                label="Height"
-                style={styles.input}
-                value={state.height}
-                keyboardType = 'numeric'
-                onChangeText={value => dispatch({ name: 'height', value })}
-              />
+              <View style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10
+              }}>
+
+                {
+                  images.map(image => (
+                    <ImagePicker
+                      key={image.key}
+                      onChangeImage={uri => handleSetUrl(uri ?? '', image.key)}
+                      imageUri={image.uri}
+                      mode='both'
+                      onCancel={() => handleSetUrl('', image.key)}
+                    />
+                  ))
+                }
+              </View>
               <TextInput
                 label="Length"
                 style={styles.input}
                 value={state.length}
-                keyboardType = 'numeric'
+                keyboardType='numeric'
                 onChangeText={value => dispatch({ name: 'length', value })}
               />
               <Button mode="contained" style={styles.input} onPress={e => handleSubmit()} >
@@ -93,7 +141,11 @@ export default function ProductSave() {
     )
   }
   return (
-    <BarcodeApp dispatch={dispatch} setIsScan={setIsScan} />
+    <>
+      <BarcodeApp dispatch={dispatch} setIsScan={setIsScan} />
+      <Button onPress={() => setIsScan(false)}>cancel</Button>
+    </>
+
   );
 }
 

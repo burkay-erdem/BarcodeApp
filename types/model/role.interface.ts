@@ -1,11 +1,14 @@
-import { Optional, Model, DataTypes } from 'sequelize';
+import { Optional, Model } from 'sequelize';
 
 export interface IRole {
     name: string;
 }
 
-export interface IRoleAttributes extends IRole {
+export interface IRoleIdentity {
     role_id: number;
+}
+
+export interface IRoleAttributes extends IRoleIdentity, IRole {
 }
 
 export interface IRoleCreationAttributes extends Optional<IRoleAttributes, 'role_id'> { }
