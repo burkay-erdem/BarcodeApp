@@ -1,13 +1,13 @@
-import { ValidationError } from "express-validator";
 import React from "react";
 
 export interface IChildren {
     children: JSX.Element[] | JSX.Element | React.ReactNode;
 }
 
-export interface IMessage  {
+export interface IMessage {
     type: string;
     msg: string;
+    field?: string;
 }
 
 export interface IBaseResponse<T = {}> {

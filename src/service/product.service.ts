@@ -5,6 +5,7 @@ import { apiSlice } from "./api.service";
 
 export const ProductEndpoints = {
   getProductReadList: "product",
+  postProductCreateImage: "product/image",
 
 };
 
@@ -19,10 +20,24 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
         }),
       },
     ),
+    postProductCreateImage: builder.mutation<IProductCreateResponse, IProductCreateRequest | FormData>(
+      {
+        query: (data) => ({
+          url: ProductEndpoints.postProductCreateImage,
+          method: "POST",
+          body: data,
+          headers: {
+            'Content-Type': undefined //'multipart/form-data;'
+          },
+          formData: true
+        }),
+      },
+    ),
   })
 });
 
 
 export const {
   usePostProductCreateMutation,
+  usePostProductCreateImageMutation
 } = ProductApiServiceSlice;

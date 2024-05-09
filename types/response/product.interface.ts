@@ -1,4 +1,4 @@
-import { IProduct } from "../model/product.interface";
+import { IProduct, IProductAttributes, IProductToImageAttributes } from "../model/product.interface";
 import { IBaseResponse } from "../system";
 
 export interface IProductReadResponse {
@@ -7,5 +7,9 @@ export interface IProductReadResponse {
 export interface IProductReadListResponse {
 }
 
-export interface IProductCreateResponse extends IBaseResponse<IProduct> {
+export interface IProductCreateResponse extends IBaseResponse<IProductAttributes> {
+}
+
+export interface IProductImageCreateResponse extends IBaseResponse<IProductToImageAttributes[]> {
+
 }

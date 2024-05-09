@@ -4,6 +4,7 @@ declare module '@env' {
 }
 
 declare module process.env {
+    export const PORT: string;
     export const API_URL: string;
     export const DB_NAME: string;
     export const DB_HOST: string;

@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from '@env'
+
 console.log('API_URL: ', API_URL);
 
 export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: API_URL,
+    baseUrl: "https://localhost.dev.elonky.com",
     credentials: "include",
     prepareHeaders: (headers, { endpoint, extra, type, getState }) => {
       // const stateAccessToken = (getState() as RootState).auth.user?.accessToken;

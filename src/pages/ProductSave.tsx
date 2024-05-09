@@ -8,17 +8,36 @@ import { Button, TextInput } from 'react-native-paper';
 import { IconTypes } from '../../icon-list';
 import ImagePicker from '../components/imagePicker/ImagePicker';
 import { IProductCreateRequest } from '../../types/request/product.interface';
-import { usePostProductCreateMutation } from '../service/product.service';
+import { usePostProductCreateImageMutation, usePostProductCreateMutation } from '../service/product.service';
 import { IMessage } from '../../types/system';
-
-
-const initialArg: IProductCreateRequest = {
-  name: '',
-  barcode: '',
-  width: '',
-  length: '', 
+import { useAsyncHandler } from '../hooks/useAsyncHandler';
+import { ImagePickerAsset } from 'expo-image-picker';
+interface IImage {
+  key: string;
+  image?: ImagePickerAsset;
 }
 export interface IAction { name: keyof IProductCreateRequest, value: string }
+
+const initialArg: IProductCreateRequest = {
+  name: 'asdasd',
+  barcode: 'asd',
+  width: '123',
+  length: '123',
+}
+const initialImg: IImage[] = [
+  {
+    key: 'img-1',
+    image: undefined
+  },
+  {
+    key: 'img-2',
+    image: undefined
+  },
+  {
+    key: 'img-3',
+    image: undefined
+  },
+]
 const reducer = (state: IProductCreateRequest, action: IAction) => {
   const { name, value } = action
   return {
@@ -27,27 +46,13 @@ const reducer = (state: IProductCreateRequest, action: IAction) => {
   }
 }
 
-
 export default function ProductSave() {
   const [state, dispatch] = useReducer(reducer, initialArg)
-  const [images, setImages] = useState([
-    {
-      key: 'img-1',
-      uri: ''
-    },
-    {
-      key: 'img-2',
-      uri: ''
-    },
-    {
-      key: 'img-3',
-      uri: ''
-    },
-  ])
-  const handleSetUrl = (uri: string, key: string) => {
+  const [images, setImages] = useState<IImage[]>(initialImg)
+  const handleSetUrl = (image: ImagePickerAsset | undefined, key: string) => {
     setImages(prev => prev.map(x => {
       if (x.key === key) {
-        x.uri = uri
+        x.image = image
       }
       return x
     }))
@@ -56,21 +61,39 @@ export default function ProductSave() {
   const [isScan, setIsScan] = useState<boolean>(false)
 
   const [createProduct] = usePostProductCreateMutation()
-  const handleSubmit = async () => {
-    try {
+  const [createProductImage] = usePostProductCreateImageMutation()
+  const { asyncHandler } = useAsyncHandler()
+  const handleSubmit = () => {
+    asyncHandler(async () => {
+      console.log('state: ', state);
       const createProductResponse = await createProduct(state).unwrap()
-      console.log('createProductResponse: ', createProductResponse)
-    } catch (error: any) {
-      if (error.data.errorMessages.length) {
-        const errorMessages = error.data.errorMessages as IMessage[]
-        console.error(errorMessages)
-      }
-      if (error.data.warningMessages.length) {
-        const warningMessages = error.data.warningMessages as IMessage[]
-        console.warn(warningMessages)
-      } 
-    }
+      console.log('createProductResponse: ', createProductResponse);
 
+      const _images = images.filter(x => x.image)
+      if (_images.length) {
+        const formData = new FormData()
+        formData.append('productId', createProductResponse.data?.product_id)
+        _images.forEach(({ key, image }) => {
+          console.log('image: ', image);
+          formData.append('files', {
+            uri: image?.uri,
+            type: 'image/jpeg',
+            name: 'image.jpg',
+          })
+        })
+        const requestOptions: RequestInit = {
+          method: "POST",
+          body: formData,
+          redirect: "follow"
+        };
+        // fetch("https://localhost.dev.elonky.com/product/image", requestOptions)
+        //   .then((response) => response.text())
+        //   .then((result) => console.log(result))
+        //   .catch((error) => console.error(error));
+        const createProductImageResponse = await createProductImage(formData)
+        // console.log('createProductImageResponse: ', createProductImageResponse);
+      }
+    })
   }
   if (!isScan) {
     return (
@@ -112,13 +135,13 @@ export default function ProductSave() {
               }}>
 
                 {
-                  images.map(image => (
+                  images.map(({ key, image }) => (
                     <ImagePicker
-                      key={image.key}
-                      onChangeImage={uri => handleSetUrl(uri ?? '', image.key)}
-                      imageUri={image.uri}
+                      key={key}
+                      onChangeImage={uri => handleSetUrl(uri, key)}
+                      image={image}
                       mode='both'
-                      onCancel={() => handleSetUrl('', image.key)}
+                      onCancel={() => handleSetUrl(undefined, key)}
                     />
                   ))
                 }

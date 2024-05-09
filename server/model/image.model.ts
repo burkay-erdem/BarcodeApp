@@ -12,7 +12,9 @@ const Image = (sequelize: Sequelize, PREFIX: string) => {
         // timestamps: false
     })
     const associate = (models: IDb) => {
-
+        console.log('associated ImageModel', )
+        ImageModel.belongsToMany(models.Product, { through: models.ProductToImage, foreignKey: 'product_id' })
+        ImageModel.hasMany(models.ProductToImage,{ foreignKey: 'image_id' })
     }
     const seed = () => {
 

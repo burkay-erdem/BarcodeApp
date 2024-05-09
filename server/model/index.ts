@@ -37,12 +37,11 @@ fs.readdirSync(model_path)
         })
     })
 
-sequelize.sync({ force: true }).then(result => {
+sequelize.sync({ force: false }).then(result => {
     const dbKeys = Object.keys(_db ?? {}) as Array<keyof typeof _db>
     dbKeys.forEach((_modelName) => {
         if (_db[_modelName]?.options && typeof _db[_modelName].options.associate === 'function') {
-            try {
-                console.log('associate');
+            try { 
                 _db[_modelName].options.associate(_db);
                 _db[_modelName].options.seed();
                 // fs.readdirSync(model_path).filter(function (file) {
