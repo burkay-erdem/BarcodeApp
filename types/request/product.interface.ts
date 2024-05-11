@@ -16,3 +16,6 @@ export interface IProductImageCreateRequest {
     productId: number;
     file?: File[]
 }
+
+export interface IProductDeleteRequest extends IProductIdentity {
+}

@@ -14,9 +14,11 @@ const Product = (sequelize: Sequelize, PREFIX: string) => {
         // timestamps: false
     })
     const associate = (models: IDb) => {
-        console.log('associated ProductModel', )
+        console.log('associated ProductModel',)
 
-        ProductModel.belongsToMany(models.Image, { through: models.ProductToImage,foreignKey: 'image_id' })
+        ProductModel.belongsToMany(models.Image, { through: models.ProductToImage, foreignKey: 'product_id', otherKey: 'image_id' })
+        ProductModel.hasMany(models.ProductToImage, { foreignKey: 'product_id' })
+
     }
     const seed = () => {
 
@@ -29,12 +31,12 @@ const ProductToImage = (sequelize: Sequelize, PREFIX: string) => {
     const ProductToImageModel = sequelize.define<IProductToImageInstance>('ProductToImage', {
         product_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
         image_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true },
-      
+
     }, {
         tableName: PREFIX + 'productToImage',
         // timestamps: false
     })
-    const associate = (models: IDb) => { 
+    const associate = (models: IDb) => {
         ProductToImageModel.belongsTo(models.Product, { foreignKey: 'product_id' })
         ProductToImageModel.belongsTo(models.Image, { foreignKey: 'image_id' })
     }

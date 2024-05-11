@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { body } from 'express-validator';
+import { body, query } from 'express-validator';
 import multer from 'multer'
 import crypto from 'crypto'
 import path from 'path'
 
 import productController from "../controller/product.controller";
+import { validatorRun } from "./validator";
 
 
 const storage = multer.diskStorage({
@@ -23,12 +24,25 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 const init = (router: Router) => {
-    router.route(`/product`).post(
+    router.route(`/product/:product_id`)
+    .get(
+        productController._read
+    )
+    .delete(
+        productController._delete
+    )
+    router.route(`/product`).get()
+    .get( 
+        validatorRun,
+        productController._list
+    )
+    .post(
         body('name').notEmpty(),
         body('barcode').notEmpty(),
         body('width').notEmpty().isNumeric(),
         body('length').notEmpty().isNumeric(),
-        productController.create
+        validatorRun,
+        productController._create
         /*
             #swagger.tags = ['store']
      
@@ -36,7 +50,7 @@ const init = (router: Router) => {
     )
     router.route(`/product/image`).post(
         upload.array('files', 3),
-        productController.updateImage
+        productController._updateImage
         /*
             #swagger.tags = ['store']
      

@@ -1,7 +1,7 @@
 import { Request as _Request, Response as _Response, NextFunction as _NextFunction } from "express";
 import { IBaseResponse, IMessage } from "./system";
 
-export interface Request<IReq> extends _Request<undefined,undefined, IReq, IReq> {
+export interface Request<IReqBody,IReqParams = {}> extends _Request<IReqParams,undefined, IReqBody, IReqBody> {
 }
 export interface Response<IRes> extends _Response<IRes> {
 }

@@ -5,22 +5,68 @@ import { Model } from 'sequelize'
 import { NextFunction, Request, Response, __Response__ } from '../../types/express'
 import { Request as _Request } from 'express'
 import { validationResult } from 'express-validator'
-import { IProductCreateResponse, IProductImageCreateResponse } from '../../types/response/product.interface'
-import { IProduct, IProductAttributes, IProductToImageAttributes } from '../../types/model/product.interface'
+import { IProductCreateResponse, IProductDeleteResponse, IProductImageCreateResponse, IProductRead, IProductReadListResponse, IProductReadResponse } from '../../types/response/product.interface'
+import { IProduct, IProductAttributes, IProductIdentity, IProductToImageAttributes } from '../../types/model/product.interface'
 import { IImage, IImageAttributes, IImageIdentity } from '../../types/model/image.interface'
-import { IProductCreateRequest, IProductImageCreateRequest } from '../../types/request/product.interface'
+import { IProductCreateRequest, IProductDeleteRequest, IProductImageCreateRequest, IProductReadListRequest, IProductReadRequest } from '../../types/request/product.interface'
 import fs from 'fs'
 import imageModel from '../model/image.model'
 
-const create = asyncHandler(async (req: Request<IProductCreateRequest>, res: Response<IProductCreateResponse>, next: NextFunction): Promise<void> => {
-    const response = new __Response__<IProductCreateResponse["data"]>();
-    const errors = validationResult(req);
+const _read = asyncHandler(async (req: Request<IProductReadRequest, IProductIdentity>, res: Response<IProductReadResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IProductReadResponse["data"]>();
 
-    if (!errors.isEmpty()) {
-        response.errorMessages = errors.array()
-        res.status(400).json(response);
+    const product = await db.Product?.findByPk<Model<IProductRead, IProductAttributes>>(req.params.product_id, {
+        include: [
+            {
+                model: db.Image
+            }
+        ],
+    })
+    if (!product) {
+        response.warningMessages.push({
+            msg: 'not found product',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
         return
     }
+    response.data = product.dataValues
+    res.json(response)
+})
+
+const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Response<IProductReadListResponse>, next: NextFunction): Promise<void> => {
+
+    const response = new __Response__<IProductRead[]>();
+
+    let limit: number | undefined = undefined;
+    let offset: number | undefined = undefined;
+
+    if (req.query?.limit) {
+        limit = parseInt(req.query.limit.toString())
+    }
+    if (req.query?.limit && req.query?.page) {
+        offset = req.query.limit * (req.query.page - 1)
+    }
+    const products = await db.Product?.findAll<Model<IProductRead, IProductAttributes>>({
+        limit: limit,
+        offset: offset,
+        include: [
+            {
+                model: db.Image
+            }
+        ],
+        order: [["product_id", "DESC"]]
+    })
+
+    response.data = products.map(x => x.dataValues)
+
+    res.json(response)
+
+})
+
+
+const _create = asyncHandler(async (req: Request<IProductCreateRequest>, res: Response<IProductCreateResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IProductCreateResponse["data"]>();
     const product = await db.Product?.create<Model<IProductAttributes, IProduct>>(req.body)
 
     response.data = product.dataValues
@@ -29,7 +75,7 @@ const create = asyncHandler(async (req: Request<IProductCreateRequest>, res: Res
 
 })
 
-const updateImage = asyncHandler(async (req: _Request, res: Response<IProductImageCreateResponse>, next: NextFunction): Promise<void> => {
+const _updateImage = asyncHandler(async (req: _Request, res: Response<IProductImageCreateResponse>, next: NextFunction): Promise<void> => {
     const response = new __Response__<IProductImageCreateResponse["data"]>();
     const requestBody = req.body as IProductImageCreateRequest
     const imagesTo = await db.ProductToImage.findAll<Model<IProductToImageAttributes>>({
@@ -52,7 +98,7 @@ const updateImage = asyncHandler(async (req: _Request, res: Response<IProductIma
             type: productFile.mimetype,
             url: productFile.path
         })
-        const imageToProduct = await db.ProductToImage?.create<Model<IProductToImageAttributes>>({
+        await db.ProductToImage?.create<Model<IProductToImageAttributes>>({
             image_id: image.getDataValue('image_id'),
             product_id: requestBody.productId
         })
@@ -71,8 +117,28 @@ const updateImage = asyncHandler(async (req: _Request, res: Response<IProductIma
     res.json(response)
 })
 
-
+const _delete = asyncHandler(async (req: Request<IProductDeleteRequest, IProductIdentity>, res: Response<IProductDeleteResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IProductDeleteResponse["data"]>();
+    const product = await db.Product?.findByPk<Model<IProductAttributes>>(req.params.product_id)
+    if (!product) {
+        response.warningMessages.push({
+            msg: 'not found product',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
+        return
+    }
+    await product.destroy()
+    response.data = {
+        msg: "product deleted",
+        type: "delete success"
+    }
+    res.json(response)
+})
 export default {
-    updateImage,
-    create
+    _list,
+    _read,
+    _create,
+    _updateImage,
+    _delete
 }

@@ -18,12 +18,12 @@ export const apiSlice = createApi({
       //   headers.set("authorization", `Bearer ${accessToken}`);
       // }
 
-      if (!headers.has("Content-Type")) {
-        headers.set("Content-Type", "application/json");
-      }
-      if (headers.get("Content-Type") === "formData") {
-        headers.delete("Content-Type");
-      }
+      // if (!headers.has("Content-Type")) {
+      //   headers.set("Content-Type", "application/json");
+      // }
+      // if (headers.get("Content-Type") === "formData") {
+      //   headers.delete("Content-Type");
+      // }
 
       return headers;
     },

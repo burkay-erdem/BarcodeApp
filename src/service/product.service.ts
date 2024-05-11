@@ -1,20 +1,29 @@
 
-import { IProductCreateRequest } from "../../types/request/product.interface";
-import { IProductCreateResponse } from "../../types/response/product.interface";
+import { IProductCreateRequest, IProductReadListRequest } from "../../types/request/product.interface";
+import { IProductCreateResponse, IProductReadListResponse } from "../../types/response/product.interface";
 import { apiSlice } from "./api.service";
 
 export const ProductEndpoints = {
-  getProductReadList: "product",
+  matchProduct: "product",
   postProductCreateImage: "product/image",
 
 };
 
 export const ProductApiServiceSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    getProductReadList: builder.query<IProductReadListResponse, IProductReadListRequest>(
+      {
+        query: (data) => ({
+          url: ProductEndpoints.matchProduct,
+          method: "GET",
+          body: data,
+        }),
+      },
+    ),
     postProductCreate: builder.mutation<IProductCreateResponse, IProductCreateRequest>(
       {
         query: (data) => ({
-          url: ProductEndpoints.getProductReadList,
+          url: ProductEndpoints.matchProduct,
           method: "POST",
           body: data,
         }),
@@ -38,6 +47,8 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
 
 
 export const {
+  useGetProductReadListQuery,
+       
   usePostProductCreateMutation,
   usePostProductCreateImageMutation
 } = ProductApiServiceSlice;

@@ -13,7 +13,7 @@ const Image = (sequelize: Sequelize, PREFIX: string) => {
     })
     const associate = (models: IDb) => {
         console.log('associated ImageModel', )
-        ImageModel.belongsToMany(models.Product, { through: models.ProductToImage, foreignKey: 'product_id' })
+        ImageModel.belongsToMany(models.Product, { through: models.ProductToImage, foreignKey: 'image_id', otherKey: "product_id" })
         ImageModel.hasMany(models.ProductToImage,{ foreignKey: 'image_id' })
     }
     const seed = () => {

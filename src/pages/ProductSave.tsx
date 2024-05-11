@@ -86,12 +86,8 @@ export default function ProductSave() {
           body: formData,
           redirect: "follow"
         };
-        // fetch("https://localhost.dev.elonky.com/product/image", requestOptions)
-        //   .then((response) => response.text())
-        //   .then((result) => console.log(result))
-        //   .catch((error) => console.error(error));
-        const createProductImageResponse = await createProductImage(formData)
-        // console.log('createProductImageResponse: ', createProductImageResponse);
+      
+        const createProductImageResponse = await createProductImage(formData) 
       }
     })
   }

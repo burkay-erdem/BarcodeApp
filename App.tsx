@@ -8,6 +8,8 @@ import { Provider } from "react-redux";
 import { store } from "./src/providers/redux.provider";
 import { MD3LightTheme as DefaultTheme, Icon, PaperProvider, Provider as PaperUiProvider, adaptNavigationTheme } from 'react-native-paper';
 import UserSave from './src/pages/UserSave';
+import { IconTypes } from './icon-list';
+import { ProductList } from './src/pages/ProductList';
 
 // const { LightTheme } = adaptNavigationTheme({ reactNavigationLight: DefaultTheme });
 
@@ -37,13 +39,24 @@ const App = () => {
                 tabBarStyle: { position: 'absolute', marginBottom: 20, bottom: 20 },
               }}>
               <Tab.Screen
-                name="Home"
+                name="ProductSave"
                 component={ProductSave}
                 options={{
-                  title: 'Welcome',
+                  title: 'Product Save',
                   headerShown: false,
                   tabBarIcon: ({ color, size }) => {
-                    return <Icon source="camera" size={size} color={color} />;
+                    return <Icon source={IconTypes['content-save-settings']} size={size} color={color} />;
+                  },
+                }}
+              />
+              <Tab.Screen
+                name="ProductList"
+                component={ProductList}
+                options={{
+                  title: 'Product List',
+                  headerShown: false,
+                  tabBarIcon: ({ color, size }) => {
+                    return <Icon source={IconTypes['view-list']} size={size} color={color} />;
                   },
                 }}
               />
