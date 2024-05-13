@@ -5,7 +5,7 @@ import { Model } from 'sequelize'
 import { NextFunction, Request, Response, __Response__ } from '../../types/express'
 import { Request as _Request } from 'express'
 import { validationResult } from 'express-validator'
-import { IProductCreateResponse, IProductDeleteResponse, IProductImageCreateResponse, IProductRead, IProductReadListResponse, IProductReadResponse } from '../../types/response/product.interface'
+import { IProductCreateResponse, IProductDeleteResponse, IProductImageCreateResponse, IProductRead, IProductReadList, IProductReadListResponse, IProductReadResponse } from '../../types/response/product.interface'
 import { IProduct, IProductAttributes, IProductIdentity, IProductToImageAttributes } from '../../types/model/product.interface'
 import { IImage, IImageAttributes, IImageIdentity } from '../../types/model/image.interface'
 import { IProductCreateRequest, IProductDeleteRequest, IProductImageCreateRequest, IProductReadListRequest, IProductReadRequest } from '../../types/request/product.interface'
@@ -36,7 +36,7 @@ const _read = asyncHandler(async (req: Request<IProductReadRequest, IProductIden
 
 const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Response<IProductReadListResponse>, next: NextFunction): Promise<void> => {
 
-    const response = new __Response__<IProductRead[]>();
+    const response = new __Response__<IProductReadList>();
 
     let limit: number | undefined = undefined;
     let offset: number | undefined = undefined;
@@ -45,9 +45,9 @@ const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Re
         limit = parseInt(req.query.limit.toString())
     }
     if (req.query?.limit && req.query?.page) {
-        offset = req.query.limit * (req.query.page - 1)
+        offset = req.query.limit * req.query.page
     }
-    const products = await db.Product?.findAll<Model<IProductRead, IProductAttributes>>({
+    const products = await db.Product?.findAndCountAll<Model<IProductRead, IProductAttributes>>({
         limit: limit,
         offset: offset,
         include: [
@@ -57,8 +57,11 @@ const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Re
         ],
         order: [["product_id", "DESC"]]
     })
-
-    response.data = products.map(x => x.dataValues)
+    // products.rows = products.rows.map(x => x.dataValues)
+    response.data = {
+        count: products.count,
+        rows: products.rows.map(x => x.dataValues)
+    }
 
     res.json(response)
 

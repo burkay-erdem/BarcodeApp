@@ -16,7 +16,8 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
         query: (data) => ({
           url: ProductEndpoints.matchProduct,
           method: "GET",
-          body: data,
+          params: data,
+          
         }),
       },
     ),
@@ -48,7 +49,6 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetProductReadListQuery,
-       
   usePostProductCreateMutation,
   usePostProductCreateImageMutation
 } = ProductApiServiceSlice;
