@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import { CameraView } from "expo-camera/next";
-import { IAction } from "../pages/ProductSave";
-import { useDispatch } from "react-redux";
+import { BarCodeScanner } from 'expo-barcode-scanner'; 
+import { IAction } from "../pages/ProductSave"; 
+import { CameraView } from "expo-camera";
 
 interface IBarcode {
     dispatch: React.Dispatch<IAction>;

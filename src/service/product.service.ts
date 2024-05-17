@@ -1,6 +1,6 @@
 
-import { IProductCreateRequest, IProductReadListRequest } from "../../types/request/product.interface";
-import { IProductCreateResponse, IProductReadListResponse } from "../../types/response/product.interface";
+import { IProductCreateRequest, IProductDeleteRequest, IProductReadListRequest } from "../../types/request/product.interface";
+import { IProductCreateResponse, IProductDeleteResponse, IProductReadListResponse } from "../../types/response/product.interface";
 import { apiSlice } from "./api.service";
 
 export const ProductEndpoints = {
@@ -17,7 +17,7 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
           url: ProductEndpoints.matchProduct,
           method: "GET",
           params: data,
-          
+
         }),
       },
     ),
@@ -43,6 +43,14 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
         }),
       },
     ),
+    deleteProductDelete: builder.mutation<IProductDeleteResponse, IProductDeleteRequest>(
+      {
+        query: (data) => ({
+          url: ProductEndpoints.matchProduct + '/' + data.product_id ,
+          method: "DELETE",
+        }),
+      },
+    ),
   })
 });
 
@@ -50,5 +58,6 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
 export const {
   useGetProductReadListQuery,
   usePostProductCreateMutation,
-  usePostProductCreateImageMutation
+  usePostProductCreateImageMutation,
+  useDeleteProductDeleteMutation
 } = ProductApiServiceSlice;

@@ -24,7 +24,7 @@ export interface ISequelizeModel extends ModelCtor<Model> {
 }
 
 
-export type IModelName = 'User' | 'Role' | 'Product' | 'ProductToImage' | 'Image'
+export type IModelName = 'User'| 'UserToList' | 'Role' | 'Product' | 'ProductToImage' | 'ProductToMember' | 'ProductToList' | 'Image' | 'List'
 
 export type IDbName = {
     [key in IModelName]: ISequelizeModel;

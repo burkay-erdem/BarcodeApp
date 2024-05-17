@@ -5,7 +5,7 @@ console.log('API_URL: ', API_URL);
 
 export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://localhost.dev.elonky.com",
+    baseUrl: "http://10.38.123.5:3001",
     credentials: "include",
     prepareHeaders: (headers, { endpoint, extra, type, getState }) => {
       // const stateAccessToken = (getState() as RootState).auth.user?.accessToken;

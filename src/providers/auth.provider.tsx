@@ -1,32 +1,29 @@
-  
-import React, { createContext } from "react";
 
-interface IProductUpdateAllContext {
-  setIsCheck?: React.Dispatch<React.SetStateAction<boolean>>;
-  isCheck: boolean;
-  setSelectedPage?: React.Dispatch<React.SetStateAction<number>>;
-  selectedPage: number;
+import React, { createContext, useMemo, useState } from "react";
+import { IChildren } from "../../types/system";
+import { IUserAttributes } from "../../types/model/user.interface";
+import { Session } from "../../types/response/user.interface";
+
+
+interface IAuthContext {
+  setSession: React.Dispatch<React.SetStateAction<Session | undefined>>;
+  session: Session | undefined
 }
 
-const initialValue: IProductUpdateAllContext = {
-  isCheck: false,
-  selectedPage: 0,
-};
-
-export const ProductUpdateAllContext =
-  createContext<IProductUpdateAllContext>(initialValue);
+export const AuthContext = createContext<IAuthContext | null>(null);
 
 interface IProvider extends IChildren {
-  contextValue: IProductUpdateAllContext;
 }
 
-export const ProductUpdateAllProvider: React.FC<IProvider> = ({
-  children,
-  contextValue,
-}) => {
+export const AuthProvider: React.FC<IProvider> = ({ children, }) => {
+  const [session, setSession] = useState<Session>()
+  const contextValue = useMemo(() => ({
+    setSession,
+    session,
+  }), [session])
   return (
-    <ProductUpdateAllContext.Provider value={contextValue}>
+    <AuthContext.Provider value={contextValue}>
       {children}
-    </ProductUpdateAllContext.Provider>
+    </AuthContext.Provider>
   );
 };

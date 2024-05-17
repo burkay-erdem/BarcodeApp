@@ -37,16 +37,9 @@ const _read = asyncHandler(async (req: Request<IProductReadRequest, IProductIden
 const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Response<IProductReadListResponse>, next: NextFunction): Promise<void> => {
 
     const response = new __Response__<IProductReadList>();
-
-    let limit: number | undefined = undefined;
-    let offset: number | undefined = undefined;
-
-    if (req.query?.limit) {
-        limit = parseInt(req.query.limit.toString())
-    }
-    if (req.query?.limit && req.query?.page) {
-        offset = req.query.limit * req.query.page
-    }
+    const limit = parseInt(req.query?.limit?.toString() ?? '10');
+    const page = parseInt(req.query?.page?.toString() ?? '0')
+    const offset = limit * page;
     const products = await db.Product?.findAndCountAll<Model<IProductRead, IProductAttributes>>({
         limit: limit,
         offset: offset,
@@ -57,13 +50,16 @@ const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Re
         ],
         order: [["product_id", "DESC"]]
     })
+
     // products.rows = products.rows.map(x => x.dataValues)
     response.data = {
         count: products.count,
+        page: page,
+        limit: limit,
         rows: products.rows.map(x => x.dataValues)
     }
-
     res.json(response)
+    return
 
 })
 

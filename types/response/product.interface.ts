@@ -7,6 +7,8 @@ export interface IProductRead extends IProductAttributes {
 }
 export interface IProductReadList  {
     count: number,
+    page: number,
+    limit: number,
     rows: IProductRead[]
 }
 

@@ -2,12 +2,12 @@
 import { Dialect, Sequelize } from "sequelize";
 import fs from 'fs'
 import path from 'path'
-import { IDb, IModelName, ISequelizeModel, ModelFunction } from "../../types/sequelize";
-import { DB_CONFIG } from "../config/app.config";
+import { IDb, IModelName, ModelFunction } from "../../types/sequelize";
+import { APP_CONFIG } from "../config/app.config";
 
-const sequelize = new Sequelize(DB_CONFIG.DB, DB_CONFIG.USER, DB_CONFIG.PASSWORD, {
-    host: DB_CONFIG.HOST,
-    dialect: DB_CONFIG.DIALECT as Dialect,
+const sequelize = new Sequelize(APP_CONFIG.DB, APP_CONFIG.USER, APP_CONFIG.PASSWORD, {
+    host: APP_CONFIG.HOST,
+    dialect: APP_CONFIG.DIALECT as Dialect,
     logging: false
 })
 
@@ -27,7 +27,7 @@ fs.readdirSync(model_path)
         const models = require(path.join(model_path, file))
         Object.values(models.default).forEach((_model: any) => {
 
-            const { model, associate, seed } = (_model as ModelFunction["model"])(sequelize, DB_CONFIG.PREFIX)
+            const { model, associate, seed } = (_model as ModelFunction["model"])(sequelize, APP_CONFIG.PREFIX)
             model.options.associate = associate
             model.options.seed = seed
 

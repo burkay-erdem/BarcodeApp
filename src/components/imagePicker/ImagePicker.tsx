@@ -1,20 +1,18 @@
 import React, { useEffect } from 'react';
 import { Alert, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-
+import { SimpleLineIcons } from '@expo/vector-icons';
 
 import { useCamera } from './useCamera';
 import { usePhotos } from './usePhoto';
-import { Icon } from 'react-native-paper';
-import { IconTypes } from '../../../icon-list';
 import { ImagePickerAsset } from 'expo-image-picker';
-export type PickerType = 'camera' | 'photos'  | 'both'
+export type PickerType = 'camera' | 'photos' | 'both'
 interface IImageInput {
   image?: ImagePickerAsset;
   onChangeImage: (e?: ImagePickerAsset) => void;
   onCancel: () => void;
   mode: PickerType;
 }
-export const ImageInput: React.FC<IImageInput> = ({ image, onChangeImage, onCancel , mode  }) => {
+export const ImageInput: React.FC<IImageInput> = ({ image, onChangeImage, onCancel, mode }) => {
 
   const camera = useCamera();
   const photos = usePhotos();
@@ -74,9 +72,9 @@ export const ImageInput: React.FC<IImageInput> = ({ image, onChangeImage, onCanc
 
   return (
     <TouchableWithoutFeedback onPress={handlePress}>
-      <View style={styles.container}>
+      <View style={[styles.container, styles.shadowProp]}>
         {!image ? (
-          <Icon source={IconTypes['camera-image']} size={75} />
+          <SimpleLineIcons name="camera" size={24} color="black" />
         ) : (
           <Image source={{ uri: image.uri }} style={styles.image} />
         )}
@@ -92,7 +90,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 100,
     width: 100,
-    overflow: 'hidden'
+    overflow: 'hidden',
+  },
+  shadowProp: {
+    shadowColor: '#171717',
+    shadowOffset: { width: 3, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   image: {
     width: '100%',

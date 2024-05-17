@@ -1,7 +1,7 @@
 
 import { Sequelize, DataTypes } from 'sequelize'
-import { IDb, ModelFunction } from '../../types/sequelize'
-import { IRoleInstance } from '../../types/model/role.interface'
+import { IDb } from '../../types/sequelize'
+import { IRoleInstance, RoleTypes } from '../../types/model/role.interface'
 const Role = (sequelize: Sequelize, PREFIX: string) => {
     const RoleModel = sequelize.define<IRoleInstance>('Role', {
         role_id: { type: DataTypes.INTEGER, allowNull: false, primaryKey: true, autoIncrement: true },
@@ -16,13 +16,13 @@ const Role = (sequelize: Sequelize, PREFIX: string) => {
     const seed = () => {
         RoleModel.bulkCreate([
             {
-                name: 'Muhasebe'
+                name: RoleTypes.Accounting
             },
             {
-                name: 'Operator'
+                name: RoleTypes.Operator
             },
             {
-                name: 'Tedarikçi'
+                name: RoleTypes.Supplier
             },
         ])
     }

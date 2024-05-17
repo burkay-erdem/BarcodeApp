@@ -12,5 +12,6 @@ declare module process.env {
     export const DB_PASSWORD: string;
     export const DB_DIALECT: string;
     export const DB_PREFIX: string;
+    export const AUTH_SECRET: string;
 
 }

@@ -1,14 +1,11 @@
- 
-import { IUserCreateRequest, IUserReadRequest } from "../../types/request/user.interface";
-import { IUserCreateResponse, IUserReadResponse } from "../../types/response/user.interface";
+
+import { IUserAuthRequest, IUserCreateRequest, IUserReadRequest } from "../../types/request/user.interface";
+import { IUserAuthResponse, IUserCreateResponse, IUserReadResponse } from "../../types/response/user.interface";
 import { apiSlice } from "./api.service";
-
-
-
-
 export const UserEndpoints = {
   getUserRead: "user",
   postUserCreate: "/user/register",
+  postUserLogin: "/user/login",
 
 };
 
@@ -32,11 +29,21 @@ export const UserApiServiceSlice = apiSlice.injectEndpoints({
         }),
       },
     ),
+    postUserLogin: builder.mutation<IUserAuthResponse, IUserAuthRequest>(
+      {
+        query: (data) => ({
+          url: UserEndpoints.postUserLogin,
+          method: "POST",
+          body: data,
+        }),
+      },
+    ),
   })
 });
- 
+
 
 export const {
   useGetUserReadQuery,
-  usePostUserCreateMutation
+  usePostUserCreateMutation,
+  usePostUserLoginMutation
 } = UserApiServiceSlice;

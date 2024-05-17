@@ -1,17 +1,17 @@
 
-import { StatusBar } from 'expo-status-bar';
-import { Keyboard, SafeAreaView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Button, Keyboard, SafeAreaView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import BarcodeApp from '../components/BarcodeReader';
-import { useReducer, useState } from 'react';
-import Header from '../components/AppBar';
-import { Button, TextInput } from 'react-native-paper';
-import { IconTypes } from '../../icon-list';
+import React, { useReducer, useState } from 'react';
 import ImagePicker from '../components/imagePicker/ImagePicker';
 import { IProductCreateRequest } from '../../types/request/product.interface';
 import { usePostProductCreateImageMutation, usePostProductCreateMutation } from '../service/product.service';
-import { IMessage } from '../../types/system';
 import { useAsyncHandler } from '../hooks/useAsyncHandler';
 import { ImagePickerAsset } from 'expo-image-picker';
+import IOnIcons from '@expo/vector-icons/Ionicons'; 
+import { FormInput } from '../components/FormInput';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+
 interface IImage {
   key: string;
   image?: ImagePickerAsset;
@@ -86,87 +86,95 @@ export default function ProductSave() {
           body: formData,
           redirect: "follow"
         };
-      
-        const createProductImageResponse = await createProductImage(formData) 
+
+        const createProductImageResponse = await createProductImage(formData)
       }
     })
   }
   if (!isScan) {
     return (
-      <>
-        <Header />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        {/* <View style={styles.container}> */}
+        <SafeAreaView style={styles.container}>
+          <FormInput
+            label="Name"
+            value={state.name}
+            onChangeText={value => dispatch({ name: 'name', value })}
+          />
 
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={styles.container}>
-            <SafeAreaView style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-              <TextInput
-                label="Name"
-                style={styles.input}
-                value={state.name}
-                onChangeText={value => dispatch({ name: 'name', value })}
-              />
-              <TextInput
-                label="Barcode"
-                style={styles.input}
-                value={state.barcode}
-                onChangeText={value => dispatch({
-                  name: 'barcode',
-                  value
-                })}
-                right={<TextInput.Icon onPress={() => setIsScan(true)} icon={IconTypes['barcode-scan']} />}
-              />
-              <TextInput
-                label="Width"
-                style={styles.input}
-                value={state.width}
-                keyboardType='numeric'
-                onChangeText={value => dispatch({ name: 'width', value })}
-              />
-              <View style={{
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10
-              }}>
 
-                {
-                  images.map(({ key, image }) => (
-                    <ImagePicker
-                      key={key}
-                      onChangeImage={uri => handleSetUrl(uri, key)}
-                      image={image}
-                      mode='both'
-                      onCancel={() => handleSetUrl(undefined, key)}
-                    />
-                  ))
-                }
-              </View>
-              <TextInput
-                label="Length"
-                style={styles.input}
-                value={state.length}
-                keyboardType='numeric'
-                onChangeText={value => dispatch({ name: 'length', value })}
-              />
-              <Button mode="contained" style={styles.input} onPress={e => handleSubmit()} >
-                Save
-              </Button>
-            </SafeAreaView>
+
+          <FormInput
+            label="Barcode"
+            value={state.barcode}
+            onChangeText={value => dispatch({
+              name: 'barcode',
+              value
+            })}
+            right={
+              <TouchableOpacity
+                onPress={() => setIsScan(true)}
+              >
+                {/* <FontAwesome name="barcode" size={24} color="black" /> */}
+                <IOnIcons name="barcode" size={24} color="black" />
+                {/* <Ionicons name="md-checkmark-circle" size={32} color="green" /> */}
+
+              </TouchableOpacity>
+            }
+          />
+
+          <FormInput
+            label="Width"
+            value={state.width}
+            keyboardType='numeric'
+            onChangeText={value => dispatch({ name: 'width', value })}
+          />
+          <View style={{
+            width: '100%',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10
+          }}>
+
+            {
+              images.map(({ key, image }) => (
+                <ImagePicker
+                  key={key}
+                  onChangeImage={uri => handleSetUrl(uri, key)}
+                  image={image}
+                  mode='both'
+                  onCancel={() => handleSetUrl(undefined, key)}
+                />
+              ))
+            }
           </View>
-        </TouchableWithoutFeedback>
-      </>
+          <FormInput
+            label="Length"
+            value={state.length}
+            keyboardType='numeric'
+            onChangeText={value => dispatch({ name: 'length', value })}
+          />
+          <Button
+            title={"Kaydet"}
+            onPress={e => handleSubmit()}
+          />
+
+        </SafeAreaView>
+        {/* </View> */}
+      </TouchableWithoutFeedback>
 
     )
   }
   return (
     <>
       <BarcodeApp dispatch={dispatch} setIsScan={setIsScan} />
-      <Button onPress={() => setIsScan(false)}>cancel</Button>
+      <Button title='cancel' onPress={() => setIsScan(false)} />
     </>
 
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -175,7 +183,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 0,
-    paddingVertical: 0
+    paddingVertical: 0,
+    width: '100%',
+    gap: 10
   },
   input: {
     width: '90%',

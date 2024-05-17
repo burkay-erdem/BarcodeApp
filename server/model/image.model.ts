@@ -1,6 +1,6 @@
 
 import { Sequelize, DataTypes } from 'sequelize'
-import { IDb, ModelFunction } from '../../types/sequelize'
+import { IDb } from '../../types/sequelize'
 import { IImageInstance } from '../../types/model/image.interface'
 const Image = (sequelize: Sequelize, PREFIX: string) => {
     const ImageModel = sequelize.define<IImageInstance>('Image', {
@@ -11,8 +11,9 @@ const Image = (sequelize: Sequelize, PREFIX: string) => {
         tableName: PREFIX + 'image',
         // timestamps: false
     })
-    const associate = (models: IDb) => {
-        console.log('associated ImageModel', )
+    const associate = (models: IDb) => { 
+        console.log('image models associated: ');
+
         ImageModel.belongsToMany(models.Product, { through: models.ProductToImage, foreignKey: 'image_id', otherKey: "product_id" })
         ImageModel.hasMany(models.ProductToImage,{ foreignKey: 'image_id' })
     }

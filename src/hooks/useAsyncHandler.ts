@@ -8,6 +8,7 @@ export const useAsyncHandler = () => {
 
     const asyncHandler = async (callback: IAsyncHandler["callback"]) => {
         callback().catch((error) => {
+            console.log('error: ', error);
             if (error?.data?.errorMessages?.length) {
                 const errorMessages = error.data.errorMessages as IMessage[]
                 

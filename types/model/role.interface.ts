@@ -16,3 +16,11 @@ export interface IRoleCreationAttributes extends Optional<IRoleAttributes, 'role
 export interface IRoleInstance extends Model<IRoleAttributes, IRoleCreationAttributes>, IRoleAttributes {
     // Sequelize-generated methods will be declared here (if any)
 }
+
+export enum RoleTypes {
+    Accounting = "Muhasebe",
+    Operator = "Operatör",
+    Supplier = "Tedarikçi"
+}
+
+ 
