@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { body, query } from 'express-validator';
+import { body } from 'express-validator';
 import multer from 'multer'
 import crypto from 'crypto'
 import path from 'path'
 
 import productController from "../controller/product.controller";
 import { validatorRun } from "./validator";
+import authMiddleware from "../middleware/auth.middleware";
 
 
 const storage = multer.diskStorage({
@@ -25,30 +26,49 @@ const upload = multer({ storage: storage })
 
 const init = (router: Router) => {
     router.route(`/product/:product_id`)
-    .get(
-        productController._read
+        .get(
+            authMiddleware.verifyToken,
+            productController._read
+        )
+        .delete(
+            authMiddleware.verifyToken,
+            productController._delete
+        )
+    router.route('/product/sendToUser').post(
+        authMiddleware.verifyToken,
+        body("product_id").notEmpty().isNumeric(),
+        body("user_id").notEmpty().isNumeric(),
+        validatorRun,
+        productController._sendToUser
     )
-    .delete(
-        productController._delete
+    router.route('/product/sendToList').post(
+        authMiddleware.verifyToken,
+        body("product_id").notEmpty().isNumeric(),
+        body("list_id").notEmpty().isNumeric(),
+        validatorRun,
+        productController._sendToList
     )
     router.route(`/product`).get()
-    .get( 
-        validatorRun,
-        productController._list
-    )
-    .post(
-        body('name').notEmpty(),
-        body('barcode').notEmpty(),
-        body('width').notEmpty().isNumeric(),
-        body('length').notEmpty().isNumeric(),
-        validatorRun,
-        productController._create
-        /*
-            #swagger.tags = ['store']
-     
-        */
-    )
+        .get(
+            authMiddleware.verifyToken,
+            validatorRun,
+            productController._list
+        )
+        .post(
+            authMiddleware.verifyToken,
+            body('name').notEmpty(),
+            body('barcode').notEmpty(),
+            body('width').notEmpty().isNumeric(),
+            body('length').notEmpty().isNumeric(),
+            validatorRun,
+            productController._create
+            /*
+                #swagger.tags = ['store']
+         
+            */
+        )
     router.route(`/product/image`).post(
+        authMiddleware.verifyToken,
         upload.array('files', 3),
         productController._updateImage
         /*

@@ -1,59 +1,39 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { AntDesign } from '@expo/vector-icons';
+import { DropdownProps } from 'react-native-element-dropdown/lib/typescript/components/Dropdown/model';
+import { StyleSheet } from 'react-native';
 
-interface IData {
-    label: string, value: string
-}
-const data: IData[] = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-];
 
-const DropdownComponent = () => {
+export const Select = <T extends { label: string; value: string | number }>({ data, ...props }: DropdownProps<T>) => {
     const [value, setValue] = useState<string | null>(null);
 
     return (
-        <Dropdown
+        <Dropdown<T>
             style={styles.dropdown}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
-            data={data}
-            search
             maxHeight={300}
-            labelField="label"
-            valueField="value"
-            placeholder="Select item"
-            searchPlaceholder="Search..."
+            data={data}
             value={value}
-            onChange={item => {
-                setValue(item.value);
-            }}
-            renderLeftIcon={() => (
-                <AntDesign name="arrowdown" size={24} color="black" />
-            )}
+            // renderLeftIcon={() => (
+            //     <AntDesign name="arrowdown" size={24} color="black" />
+            // )}
+            {...props}
         />
     );
 };
 
-export default DropdownComponent;
 
 
 const styles = StyleSheet.create({
     dropdown: {
-        margin: 16,
+        // margin: 16,
         height: 50,
         backgroundColor: 'white',
-        borderRadius: 12,
+        // borderRadius: 12,
         padding: 12,
         shadowColor: '#000',
         shadowOffset: {

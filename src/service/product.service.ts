@@ -1,12 +1,13 @@
 
-import { IProductCreateRequest, IProductDeleteRequest, IProductReadListRequest } from "../../types/request/product.interface";
-import { IProductCreateResponse, IProductDeleteResponse, IProductReadListResponse } from "../../types/response/product.interface";
+import { IProductCreateRequest, IProductDeleteRequest, IProductReadListRequest, IProductSendToListRequest, IProductSendToUserRequest } from "../../types/request/product.interface";
+import { IProductCreateResponse, IProductDeleteResponse, IProductReadListResponse, IProductSendToListResponse, IProductSendToUserResponse } from "../../types/response/product.interface";
 import { apiSlice } from "./api.service";
 
 export const ProductEndpoints = {
   matchProduct: "product",
   postProductCreateImage: "product/image",
-
+  postProductSendToUser: "/product/sendToUser",
+  postProductSendToList: "/product/sendToList"
 };
 
 export const ProductApiServiceSlice = apiSlice.injectEndpoints({
@@ -25,6 +26,24 @@ export const ProductApiServiceSlice = apiSlice.injectEndpoints({
       {
         query: (data) => ({
           url: ProductEndpoints.matchProduct,
+          method: "POST",
+          body: data,
+        }),
+      },
+    ),
+    postProductSendToUser: builder.mutation<IProductSendToUserResponse, IProductSendToUserRequest>(
+      {
+        query: (data) => ({
+          url: ProductEndpoints.postProductSendToUser,
+          method: "POST",
+          body: data,
+        }),
+      },
+    ),
+    postProductSendToList: builder.mutation<IProductSendToListResponse, IProductSendToListRequest>(
+      {
+        query: (data) => ({
+          url: ProductEndpoints.postProductSendToList,
           method: "POST",
           body: data,
         }),
@@ -59,5 +78,7 @@ export const {
   useGetProductReadListQuery,
   usePostProductCreateMutation,
   usePostProductCreateImageMutation,
+  usePostProductSendToUserMutation,
+  usePostProductSendToListMutation,
   useDeleteProductDeleteMutation
 } = ProductApiServiceSlice;

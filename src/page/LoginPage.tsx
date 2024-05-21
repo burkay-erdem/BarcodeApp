@@ -1,22 +1,19 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useReducer } from "react";
+import React, { useReducer } from "react";
 import {
   StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
 } from "react-native";
 import { usePostUserLoginMutation } from "../service/user.service";
 import { IUserAuthRequest } from "../../types/request/user.interface";
 import { FormInput } from "../components/FormInput";
-import { useAsyncHandler } from "../hooks/useAsyncHandler";
-import { AuthContext } from "../providers/auth.provider";
-import NetInfo from '@react-native-community/netinfo';
-import { API_URL } from "@env";
+import { useAsyncHandler } from "../hook/useAsyncHandler";
+import { Button, Stack } from "@react-native-material/core";
+import { useDispatch } from "react-redux";
+import { setSession } from "../reducer/auth.slice";
 
 const initialArg: IUserAuthRequest = {
-  username: "",
-  password: ""
+  username: "ahmet",
+  password: "Shn46"
 }
 
 const reducer = (state: IUserAuthRequest, action: { name: string, value: string }) => {
@@ -28,25 +25,26 @@ const reducer = (state: IUserAuthRequest, action: { name: string, value: string 
 }
 
 export default function LoginPage() {
-  const [state, dispatch] = useReducer(reducer, initialArg);
-  const authContext = useContext(AuthContext);
+  const [state, formDispatch] = useReducer(reducer, initialArg);
+  const dispatch = useDispatch()
+
   const [userLogin] = usePostUserLoginMutation();
   const { asyncHandler } = useAsyncHandler();
- 
+
 
   const handleSubmit = () => {
     asyncHandler(async () => {
- 
+
       const userLoginResponse = await userLogin(state).unwrap()
       if (userLoginResponse.data) {
-        authContext?.setSession(userLoginResponse.data)
+        dispatch(setSession(userLoginResponse.data))
       }
       console.log('userLoginResponse: ', userLoginResponse);
     })
   }
 
   return (
-    <View style={styles.container}>
+    <Stack fill center spacing={10}>
       {/* <Image style={styles.image} source={require("./assets/log2.png")} /> */}
 
       <StatusBar style="auto" />
@@ -57,7 +55,7 @@ export default function LoginPage() {
         placeholder="Email."
         placeholderTextColor="#003f5c"
         value={state.username}
-        onChangeText={value => dispatch({ name: 'username', value })}
+        onChangeText={value => formDispatch({ name: 'username', value })}
       />
       {/* </View> */}
 
@@ -69,7 +67,7 @@ export default function LoginPage() {
         label="Password"
         value={state.password}
         secureTextEntry={true}
-        onChangeText={value => dispatch({ name: 'password', value })}
+        onChangeText={value => formDispatch({ name: 'password', value })}
       />
       {/* </View> */}
       {/*  
@@ -78,10 +76,9 @@ export default function LoginPage() {
         </TouchableOpacity> 
       */}
 
-      <TouchableOpacity onPress={handleSubmit} style={styles.loginBtn}>
-        <Text >Giriş Yap</Text>
-      </TouchableOpacity>
-    </View>
+      <Button onPress={handleSubmit} title="Giriş Yap" />
+
+    </Stack>
   );
 }
 

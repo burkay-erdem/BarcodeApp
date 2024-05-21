@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import asyncHandler from 'express-async-handler'
-import { Model } from "sequelize";
+import { Model, Op } from "sequelize";
 
 import db from "../model";
 import { IRoleAttributes } from "../../types/model/role.interface";
@@ -8,7 +8,6 @@ import { NextFunction, Request, Response, __Response__ } from "../../types/expre
 import type { IUserAuthRequest, IUserCreateRequest, IUserReadListRequest } from "../../types/request/user.interface";
 import { IUserAuthResponse, IUserCreateResponse, IUserRead, IUserReadListResponse } from "../../types/response/user.interface";
 import { IUser, IUserAttributes } from "../../types/model/user.interface";
-import { validationResult } from "express-validator";
 import jwt from 'jsonwebtoken'
 import { APP_CONFIG } from "../config/app.config";
 
@@ -22,7 +21,11 @@ const _list = asyncHandler(async (req: Request<IUserReadListRequest>, res: Respo
     const offset = limit * page;
     const user = await db.User.findAndCountAll<Model<IUserRead, IUser>>({
         limit,
-        offset
+        offset,
+        attributes: ["name", "email", "user_id"],
+        where: {
+            [Op.not]: [{ user_id: req.user?.role_id ?? 0 }]
+        }
     })
 
     response.data = {
@@ -38,8 +41,8 @@ const _list = asyncHandler(async (req: Request<IUserReadListRequest>, res: Respo
 const _signup = asyncHandler(async (req: Request<IUserCreateRequest>, res: Response<IUserCreateResponse>, next: NextFunction): Promise<void> => {
     const response = new __Response__<IUserCreateResponse["data"]>()
 
-
     const role = await db.Role.findByPk<Model<IRoleAttributes>>(req.body.role_id);
+
     if (!role) {
         response.errorMessages.push({ type: "role_id", msg: "Invalid role" })
         res.status(400).json(response);
@@ -53,9 +56,8 @@ const _signup = asyncHandler(async (req: Request<IUserCreateRequest>, res: Respo
         password: bcrypt.hashSync(req.body.password, 8),
     })
 
-    response.data = user.dataValues
+    response.data = user.dataValues;
     res.json(response);
-
 });
 
 const _signIn = asyncHandler(async (req: Request<IUserAuthRequest>, res: Response<IUserAuthResponse>, next: NextFunction): Promise<void> => {
@@ -63,7 +65,10 @@ const _signIn = asyncHandler(async (req: Request<IUserAuthRequest>, res: Respons
 
     const user = await db.User.findOne<Model<IUserAttributes>>({
         where: {
-            name: req.body.username
+            [Op.or]: [
+                { name: req.body.username },
+                { email: req.body.username },
+            ]
         }
     })
 
@@ -76,7 +81,7 @@ const _signIn = asyncHandler(async (req: Request<IUserAuthRequest>, res: Respons
         return
     }
 
-    var passwordIsValid = bcrypt.compareSync(
+    const passwordIsValid = bcrypt.compareSync(
         req.body.password,
         user.getDataValue('password')
     );
@@ -89,7 +94,15 @@ const _signIn = asyncHandler(async (req: Request<IUserAuthRequest>, res: Respons
         res.status(401).json(response);
         return
     }
-
+    const role = await db.Role.findByPk<Model<IRoleAttributes>>(user.getDataValue("role_id"))
+    if (!role) {
+        response.errorMessages.push({
+            msg: "Invalid Role!",
+            type: "role error"
+        })
+        res.status(401).json(response);
+        return
+    }
     const token = jwt.sign(user.dataValues, APP_CONFIG.AUTH_SECRET, {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
@@ -98,7 +111,8 @@ const _signIn = asyncHandler(async (req: Request<IUserAuthRequest>, res: Respons
 
     response.data = {
         ...user.dataValues,
-        accessToken: token
+        accessToken: token,
+        role: role.dataValues
     }
     res.status(200).json(response);
 })

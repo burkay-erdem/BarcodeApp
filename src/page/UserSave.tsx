@@ -13,6 +13,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useGetRoleReadListQuery } from "../service/role.service";
 import { IUserCreateRequest } from "../../types/request/user.interface";
 import { FormInput } from "../components/FormInput";
+import { Select } from "../components/Select";
 
 const initialArg: IUserCreateRequest = {
   name: '',
@@ -36,11 +37,11 @@ export default function UserSave() {
   const [createUser] = usePostUserCreateMutation();
   const handleSubmit = async () => {
     try {
-      const createUserResponse = createUser({ ...state })
-      Alert.alert('Kullanıcı işlemleri', 'yeni kullanıcı oluşturuldu')
+      const createUserResponse = await createUser({ ...state }).unwrap()
+      Alert.alert('Kullanıcı işlemleri', JSON.stringify(createUserResponse.data))
       console.log('createUserResponse: ', createUserResponse);
-    } catch (error) {
-      console.log('error : ', error)
+    } catch (error: any) {
+      console.error('error : ', error.data.errorMessages)
     }
   }
   return (
@@ -52,47 +53,36 @@ export default function UserSave() {
 
       <FormInput
         label="Name"
-        style={styles.input}
         value={state.name}
         onChangeText={value => dispatch({ name: 'name', value })}
       />
 
-      <Dropdown
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
-        iconStyle={styles.iconStyle}
+      <Select
         data={(roles?.data ?? []).map(role => ({
           label: role.name,
           value: role.role_id.toString()
         }))}
         search
-        maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder="Select item"
+        placeholder="Select Role"
         searchPlaceholder="Search..."
         value={state.role_id.toString()}
-        onChange={item => {
+        onChange={(item) => {
           dispatch({
             name: 'role_id',
             value: item.value
           });
         }}
-      // renderLeftIcon={() => (
-      //   <Icon  color="black" source={IconTypes.safe} size={20} />
-      // )}
       />
+
       <FormInput
         label="Email"
-        style={styles.input}
         value={state.email}
         onChangeText={value => dispatch({ name: 'email', value })}
       />
       <FormInput
         label="Password"
-        style={styles.input}
         value={state.password}
         onChangeText={value => dispatch({ name: 'password', value })}
       />
@@ -107,17 +97,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     gap: 10,
+    padding: 20,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
-  input: {
-    width: '90%'
-  },
+
   dropdown: {
-    width: '90%',
+    width: '100%',
     margin: 16,
-    height: 50, 
+    height: 50,
     paddingHorizontal: 10,
     borderBottomColor: 'gray',
     borderBottomWidth: 0.5,

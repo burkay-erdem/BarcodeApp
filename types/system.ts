@@ -19,4 +19,7 @@ export interface IBaseResponse<T = {}> {
 export interface IReadList {
     page?: number;
     limit?: number;
+    searchTerm?: string;
+    sortBy?: string;
+    groupBy?: string | number
 }

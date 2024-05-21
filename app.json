@@ -60,7 +60,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-router"
     ],
     "extra": {
       "eas": {

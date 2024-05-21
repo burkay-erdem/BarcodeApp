@@ -3,14 +3,14 @@ import jwt from "jsonwebtoken";
 import { APP_CONFIG } from "../config/app.config";
 import { NextFunction, Request, Response, __Response__ } from "../../types/express";
 import { IUserAuthResponse } from "../../types/response/user.interface";
-import { IUserAttributes, IUserIdentity } from "../../types/model/user.interface";
+import { IUserAttributes } from "../../types/model/user.interface";
 
 
 const verifyToken = (req: Request<any>, res: Response<any>, next: NextFunction) => {
     let token = req.headers["authorization"]?.toString().split(' ').pop();
     const response = new __Response__<IUserAuthResponse["data"]>()
 
-    if (!token) { 
+    if (!token) {
         response.errorMessages.push({
             msg: "Unauthorized!",
             type: "auth error"

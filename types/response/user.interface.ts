@@ -1,4 +1,4 @@
-import { IRoleAttributes } from "../model/role.interface";
+import { IRole, IRoleAttributes } from "../model/role.interface";
 import { IUser, IUserAttributes } from "../model/user.interface";
 import { IBaseResponse, IMessage } from "../system";
 
@@ -30,7 +30,8 @@ export interface IUserDeleteResponse extends IBaseResponse<IMessage> {
 
 
 export interface Session extends IUserAttributes {
-    accessToken: string
+    accessToken: string,
+    role: IRoleAttributes
 }
 export interface IUserAuthResponse extends IBaseResponse<Session> {
 

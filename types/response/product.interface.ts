@@ -21,6 +21,12 @@ export interface IProductReadListResponse extends IBaseResponse<IProductReadList
 export interface IProductCreateResponse extends IBaseResponse<IProductAttributes> {
 }
 
+export interface IProductSendToUserResponse extends IBaseResponse<IMessage> {
+}
+
+export interface IProductSendToListResponse extends IBaseResponse<IMessage> {
+}
+
 export interface IProductImageCreateResponse extends IBaseResponse<IProductToImageAttributes[]> {
 }
 

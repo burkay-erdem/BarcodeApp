@@ -1,28 +1,31 @@
 
-import { Button, Keyboard, SafeAreaView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Button, Keyboard, SafeAreaView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import BarcodeApp from '../components/BarcodeReader';
 import React, { useReducer, useState } from 'react';
 import ImagePicker from '../components/imagePicker/ImagePicker';
 import { IProductCreateRequest } from '../../types/request/product.interface';
 import { usePostProductCreateImageMutation, usePostProductCreateMutation } from '../service/product.service';
-import { useAsyncHandler } from '../hooks/useAsyncHandler';
+import { useAsyncHandler } from '../hook/useAsyncHandler';
 import { ImagePickerAsset } from 'expo-image-picker';
-import IOnIcons from '@expo/vector-icons/Ionicons'; 
+import IOnIcons from '@expo/vector-icons/Ionicons';
 import { FormInput } from '../components/FormInput';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 
 interface IImage {
   key: string;
   image?: ImagePickerAsset;
 }
-export interface IAction { name: keyof IProductCreateRequest, value: string }
+
+export type IAction =
+  | { type: "SET_VALUE", payload: { name: keyof IProductCreateRequest, value: string } }
+  | { type: "CLEAR_STATE" }
 
 const initialArg: IProductCreateRequest = {
-  name: 'asdasd',
-  barcode: 'asd',
-  width: '123',
-  length: '123',
+  name: '',
+  barcode: '',
+  width: '',
+  length: '',
+  created_by: 0
 }
 const initialImg: IImage[] = [
   {
@@ -39,11 +42,23 @@ const initialImg: IImage[] = [
   },
 ]
 const reducer = (state: IProductCreateRequest, action: IAction) => {
-  const { name, value } = action
-  return {
-    ...state,
-    [name]: value
+  switch (action.type) {
+    case "SET_VALUE": {
+      const { name, value } = action.payload
+      return {
+        ...state,
+        [name]: value
+      }
+    }
+    case "CLEAR_STATE": {
+      return initialArg
+    }
+
+
+    default:
+      return state
   }
+
 }
 
 export default function ProductSave() {
@@ -81,14 +96,11 @@ export default function ProductSave() {
             name: 'image.jpg',
           })
         })
-        const requestOptions: RequestInit = {
-          method: "POST",
-          body: formData,
-          redirect: "follow"
-        };
-
-        const createProductImageResponse = await createProductImage(formData)
+        await createProductImage(formData).unwrap()
       }
+      Alert.alert('Ürün Oluşturuldu')
+      setImages(initialImg)
+      dispatch({ type: "CLEAR_STATE" })
     })
   }
   if (!isScan) {
@@ -99,7 +111,7 @@ export default function ProductSave() {
           <FormInput
             label="Name"
             value={state.name}
-            onChangeText={value => dispatch({ name: 'name', value })}
+            onChangeText={value => dispatch({ type: "SET_VALUE", payload: { name: 'name', value } })}
           />
 
 
@@ -107,10 +119,7 @@ export default function ProductSave() {
           <FormInput
             label="Barcode"
             value={state.barcode}
-            onChangeText={value => dispatch({
-              name: 'barcode',
-              value
-            })}
+            onChangeText={value => dispatch({ type: "SET_VALUE", payload: { name: 'barcode', value } })}
             right={
               <TouchableOpacity
                 onPress={() => setIsScan(true)}
@@ -127,7 +136,7 @@ export default function ProductSave() {
             label="Width"
             value={state.width}
             keyboardType='numeric'
-            onChangeText={value => dispatch({ name: 'width', value })}
+            onChangeText={value => dispatch({ type: "SET_VALUE", payload: { name: 'width', value } })}
           />
           <View style={{
             width: '100%',
@@ -153,7 +162,7 @@ export default function ProductSave() {
             label="Length"
             value={state.length}
             keyboardType='numeric'
-            onChangeText={value => dispatch({ name: 'length', value })}
+            onChangeText={value => dispatch({ type: "SET_VALUE", payload: { name: 'length', value } })}
           />
           <Button
             title={"Kaydet"}

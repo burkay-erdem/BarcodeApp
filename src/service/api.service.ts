@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from '@env'
+import { RootState } from "../provider/redux.provider";
 
 console.log('API_URL: ', API_URL);
 
@@ -8,10 +9,10 @@ export const apiSlice = createApi({
     baseUrl: "http://10.38.123.5:3001",
     credentials: "include",
     prepareHeaders: (headers, { endpoint, extra, type, getState }) => {
-      // const stateAccessToken = (getState() as RootState).auth.user?.accessToken;
-      // if (stateAccessToken) {
-      //   headers.set("authorization", `Bearer ${stateAccessToken}`);
-      // }
+      const stateAccessToken = (getState() as RootState).auth.session?.accessToken;
+      if (stateAccessToken) {
+        headers.set("authorization", `Bearer ${stateAccessToken}`);
+      }
 
       // const accessToken = getCookie(CookieTypes.accessToken);
       // if (accessToken) {

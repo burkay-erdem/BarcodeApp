@@ -1,16 +1,13 @@
 import asyncHandler from 'express-async-handler'
 import db from '../model'
-import { IUserAttributes } from '../../types/model/user.interface'
-import { Model } from 'sequelize'
+import { Model, Op } from 'sequelize'
 import { NextFunction, Request, Response, __Response__ } from '../../types/express'
 import { Request as _Request } from 'express'
-import { validationResult } from 'express-validator'
-import { IProductCreateResponse, IProductDeleteResponse, IProductImageCreateResponse, IProductRead, IProductReadList, IProductReadListResponse, IProductReadResponse } from '../../types/response/product.interface'
-import { IProduct, IProductAttributes, IProductIdentity, IProductToImageAttributes } from '../../types/model/product.interface'
-import { IImage, IImageAttributes, IImageIdentity } from '../../types/model/image.interface'
-import { IProductCreateRequest, IProductDeleteRequest, IProductImageCreateRequest, IProductReadListRequest, IProductReadRequest } from '../../types/request/product.interface'
+import { IProductCreateResponse, IProductDeleteResponse, IProductImageCreateResponse, IProductRead, IProductReadList, IProductReadListResponse, IProductReadResponse, IProductSendToListResponse, IProductSendToUserResponse } from '../../types/response/product.interface'
+import { IProduct, IProductAttributes, IProductIdentity, IProductToImageAttributes, IProductToListAttributes, IProductToMemberAttributes } from '../../types/model/product.interface'
+import { IImage, IImageAttributes } from '../../types/model/image.interface'
+import { IProductCreateRequest, IProductDeleteRequest, IProductImageCreateRequest, IProductReadListRequest, IProductReadRequest, IProductSendToListRequest, IProductSendToUserRequest } from '../../types/request/product.interface'
 import fs from 'fs'
-import imageModel from '../model/image.model'
 
 const _read = asyncHandler(async (req: Request<IProductReadRequest, IProductIdentity>, res: Response<IProductReadResponse>, next: NextFunction): Promise<void> => {
     const response = new __Response__<IProductReadResponse["data"]>();
@@ -45,9 +42,33 @@ const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Re
         offset: offset,
         include: [
             {
-                model: db.Image
+                model: db.Image,
+            },
+            {
+                model: db.User,
+                where: {
+                    user_id: req.user?.user_id
+                },
+                required: true
             }
         ],
+        ...(req.query.searchTerm && {
+            where: {
+                [Op.or]: [
+                    {
+                        name: {
+                            [Op.like]: `%${req.query.searchTerm}%`
+                        }
+                    },
+                    {
+                        barcode: {
+                            [Op.like]: `%${req.query.searchTerm}%`
+                        }
+                    }
+                ]
+            }
+        }),
+       
         order: [["product_id", "DESC"]]
     })
 
@@ -59,14 +80,98 @@ const _list = asyncHandler(async (req: Request<IProductReadListRequest>, res: Re
         rows: products.rows.map(x => x.dataValues)
     }
     res.json(response)
-    return
-
 })
 
 
 const _create = asyncHandler(async (req: Request<IProductCreateRequest>, res: Response<IProductCreateResponse>, next: NextFunction): Promise<void> => {
     const response = new __Response__<IProductCreateResponse["data"]>();
-    const product = await db.Product?.create<Model<IProductAttributes, IProduct>>(req.body)
+
+    const createData: IProduct = {
+        ...req.body,
+        created_by: req.user?.user_id ?? 0,
+
+    }
+    const product = await db.Product?.create<Model<IProductAttributes, IProduct>>(createData)
+
+    await db.ProductToMember.create<Model<IProductToMemberAttributes>>({
+        is_approved: false,
+        is_received: false,
+        product_id: product.getDataValue("product_id"),
+        user_id: req.user?.user_id ?? 0
+    })
+    response.data = product.dataValues
+
+    res.json(response)
+
+})
+const _sendToUser = asyncHandler(async (req: Request<IProductSendToUserRequest>, res: Response<IProductSendToUserResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IProductSendToUserResponse["data"]>();
+
+    const product = await db.Product.findByPk(req.body.product_id)
+    if (!product) {
+        response.warningMessages.push({
+            msg: 'not found product',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
+        return
+    }
+    const user = await db.User.findByPk(req.body.user_id)
+    if (!user) {
+        response.warningMessages.push({
+            msg: 'not found user',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
+        return
+    }
+    await db.ProductToMember.destroy<Model<IProductToMemberAttributes>>({
+        where:
+            { product_id: req.body.product_id, user_id: req.body.user_id }
+
+    })
+    await db.ProductToMember.create<Model<IProductToMemberAttributes>>({
+        is_approved: false,
+        is_received: false,
+        product_id: req.body.product_id,
+        user_id: req.body.user_id
+    })
+
+    response.data = product.dataValues
+
+    res.json(response)
+
+})
+const _sendToList = asyncHandler(async (req: Request<IProductSendToListRequest>, res: Response<IProductSendToListResponse>, next: NextFunction): Promise<void> => {
+    const response = new __Response__<IProductSendToListResponse["data"]>();
+
+    const product = await db.Product.findByPk(req.body.product_id)
+    if (!product) {
+        response.warningMessages.push({
+            msg: 'not found product',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
+        return
+    }
+    const list = await db.List.findByPk(req.body.list_id)
+    if (!list) {
+        response.warningMessages.push({
+            msg: 'not found list',
+            type: 'notFound'
+        })
+        res.status(404).json(response)
+        return
+    }
+    await db.ProductToMember.destroy<Model<IProductToListAttributes>>({
+        where:
+            { product_id: req.body.product_id, list_id: req.body.list_id }
+
+    })
+    await db.ProductToMember.create<Model<IProductToListAttributes>>({
+        product_id: req.body.product_id,
+        list_id: req.body.list_id
+    })
 
     response.data = product.dataValues
 
@@ -92,7 +197,7 @@ const _updateImage = asyncHandler(async (req: _Request, res: Response<IProductIm
         await imageTo.destroy();
     }
 
-    for (const [key, productFile] of Object.entries(req.files ?? {})) {
+    for (const [, productFile] of Object.entries(req.files ?? {})) {
         const image = await db.Image.create<Model<IImageAttributes, IImage>>({
             type: productFile.mimetype,
             url: productFile.path
@@ -138,6 +243,8 @@ export default {
     _list,
     _read,
     _create,
+    _sendToUser,
+    _sendToList,
     _updateImage,
     _delete
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner'; 
-import { IAction } from "../pages/ProductSave"; 
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { IAction } from "../page/ProductSave";
 import { CameraView } from "expo-camera";
 
 interface IBarcode {
@@ -22,10 +22,7 @@ export default function BarcodeApp({ dispatch, setIsScan }: Readonly<IBarcode>) 
     }, []);
 
     const handleBarCodeScanned = ({ type, data }: { type: string, data: string }) => {
-        dispatch({
-            name: 'barcode',
-            value: data
-        });
+        dispatch({ type: "SET_VALUE", payload: { name: 'barcode', value: data } });
         setIsScan(false);
         Alert.alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     };

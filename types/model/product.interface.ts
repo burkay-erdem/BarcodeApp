@@ -6,6 +6,7 @@ export interface IProduct {
     barcode: string;
     width: string;
     length: string;
+    created_by: number;
 }
 
 export interface IProductIdentity {
@@ -39,8 +40,8 @@ export interface IProductToImageInstance extends Model<IProductToImageAttributes
 export interface IProductToMemberAttributes {
     product_id: number,
     user_id: number,
-    is_received: number,
-    is_approved: number,
+    is_received: boolean,
+    is_approved: boolean,
 }
 
 export interface IProductToMemberCreationAttributes extends Optional<IProductToMemberAttributes, 'product_id' | 'user_id'> { }

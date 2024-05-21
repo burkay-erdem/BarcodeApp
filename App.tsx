@@ -2,15 +2,12 @@ import * as React from 'react';
 
 import { Provider as ReduxProvider } from "react-redux";
 
-import { store } from './src/providers/redux.provider';
-import { Navigation } from './src/components/Navigation';
-import { AuthProvider } from './src/providers/auth.provider';
+import { store } from './src/provider/redux.provider';  
+import { AppNavigation } from './src/navigation/App.navigation';
 const App = () => {
   return (
-    <ReduxProvider store={store}>
-      <AuthProvider>
-        <Navigation />
-      </AuthProvider>
+    <ReduxProvider store={store}> 
+        <AppNavigation /> 
     </ReduxProvider >
 
   );
